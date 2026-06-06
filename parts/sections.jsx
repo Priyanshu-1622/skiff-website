@@ -130,7 +130,7 @@ const Features = () => (
             link:[SECURITY_URL,"Read security model",true] },
           { icon:<Terminal />, h:"Made for how you actually work.", p:"A keyboard-first UI tuned for managing dozens of hosts a day.",
             items:["In-browser xterm.js terminal","Import ~/.ssh/config in one click","Keyboard shortcuts (Ctrl+Shift+W)","Dark / light themes"],
-            link:[REPO_URL+"#-features","View all features",true] },
+            link:[REPO_URL+"#features","View all features",true] },
           { icon:<Rocket />, h:"Self-hosted should be simple.", p:"One container, one volume, zero hand-holding.",
             items:["Single Docker command","SQLite — no DB to set up","WAL mode for performance","Zero configuration needed"],
             link:[DEPLOY_URL,"Quick start guide",true] },
@@ -462,7 +462,7 @@ const Footer = () => (
             <li><a href="#features">Features</a></li>
             <li><a href={DOCS_URL}     target="_blank" rel="noreferrer">Documentation</a></li>
             <li><a href={RELEASES_URL} target="_blank" rel="noreferrer">Changelog</a></li>
-            <li><a href={REPO_URL+"#-roadmap"} target="_blank" rel="noreferrer">Roadmap</a></li>
+            <li><a href={REPO_URL+"#known-issues--rough-edges"} target="_blank" rel="noreferrer">Roadmap</a></li>
           </ul>
         </div>
         <div>
@@ -480,7 +480,7 @@ const Footer = () => (
             <li><a href={ISSUES_URL}       target="_blank" rel="noreferrer">GitHub issues</a></li>
             <li><a href={DISCUSSIONS_URL}  target="_blank" rel="noreferrer">GitHub discussions</a></li>
             <li><a href={CONTRIBUTING_URL} target="_blank" rel="noreferrer">Contributing guide</a></li>
-            <li><a href={REPO_URL+"/blob/main/CHANGELOG.md"} target="_blank" rel="noreferrer">Changelog</a></li>
+            <li><a href={RELEASES_URL} target="_blank" rel="noreferrer">Changelog</a></li>
           </ul>
         </div>
       </div>

@@ -21,8 +21,8 @@ const HeroAppMock = () => (
           <span className="kbd">/</span>
         </div>
         <div className="skiff-user">
-          <span>admin</span>
-          <div className="avatar">A</div>
+          <span>Vault</span>
+          <div className="avatar">S</div>
         </div>
       </div>
       <div className="skiff-side">

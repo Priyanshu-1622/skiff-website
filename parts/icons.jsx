@@ -1,20 +1,15 @@
 // Icon library — all inline SVGs, no external deps.
 // Original Skiff logo: a sail + hull shape, simple geometric form.
 
+// Skiff mark — flat-hulled boat with an angled sail, matching the brand logo.
+// The hull uses currentColor so it adapts to light/dark contexts; the sail
+// is always the brand blue.
 const SkiffLogo = ({ size = 26 }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true">
-    <defs>
-      <linearGradient id="sail-g" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stopColor="oklch(0.85 0.13 220)" />
-        <stop offset="100%" stopColor="oklch(0.6 0.18 245)" />
-      </linearGradient>
-    </defs>
-    {/* sail */}
-    <path d="M16 4 L16 21 L5 21 Z" fill="url(#sail-g)" />
-    {/* small triangle sail */}
-    <path d="M17 7 L26 21 L17 21 Z" fill="oklch(0.74 0.155 240 / 0.55)" />
-    {/* hull */}
-    <path d="M3 23 L29 23 L25 28 L7 28 Z" fill="oklch(0.92 0.02 240)" />
+    {/* sail — right triangle leaning right */}
+    <path d="M11 17 L22 8 L22 17 Z" fill="#3295FB" />
+    {/* hull — flat-bottomed trapezoid */}
+    <path d="M4 19 L28 19 L24.5 25 L7.5 25 Z" fill="currentColor" />
   </svg>
 );
 
