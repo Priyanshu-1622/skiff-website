@@ -868,3 +868,108 @@ footer {
 @media (prefers-reduced-motion: reduce) {
   .fade-in { opacity: 1; transform: none; transition: none; }
 }
+
+/* ── Live GitHub stats (v0.2) ───────────────────────────── */
+.gh-pill-count {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-left: 6px; padding: 2px 8px;
+  border-left: 1px solid var(--line-strong);
+  font-family: var(--mono); font-size: 12px; font-weight: 600;
+  color: var(--text);
+}
+.gh-pill-count svg { color: var(--amber); }
+
+.gh-live {
+  display: flex; align-items: center; justify-content: center;
+  gap: 18px; flex-wrap: wrap;
+  margin: 26px 0 6px;
+}
+.gh-live-stat {
+  display: inline-flex; align-items: baseline; gap: 10px;
+  padding: 14px 22px;
+  background: oklch(1 0 0 / 0.03);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+.gh-live-stat:hover {
+  border-color: oklch(0.74 0.155 240 / 0.4);
+  background: oklch(1 0 0 / 0.05);
+  transform: translateY(-2px);
+}
+.gh-live-stat svg { align-self: center; color: var(--amber); }
+.gh-live-stat:last-of-type svg { color: var(--primary); }
+.gh-live-stat .n {
+  font-family: var(--mono); font-size: 28px; font-weight: 700;
+  color: var(--text); line-height: 1; letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums; min-width: 2ch; text-align: center;
+}
+.gh-live-stat .l { font-size: 13px; color: var(--text-3); }
+.gh-live-tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-4);
+}
+.gh-live-tag .pulse {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 0 oklch(0.78 0.16 145 / 0.5);
+  animation: ghpulse 2s infinite;
+}
+@keyframes ghpulse {
+  0% { box-shadow: 0 0 0 0 oklch(0.78 0.16 145 / 0.5); }
+  70% { box-shadow: 0 0 0 7px oklch(0.78 0.16 145 / 0); }
+  100% { box-shadow: 0 0 0 0 oklch(0.78 0.16 145 / 0); }
+}
+@media (max-width: 640px) {
+  .gh-live { gap: 10px; }
+  .gh-live-stat { padding: 11px 16px; }
+  .gh-live-stat .n { font-size: 22px; }
+  .gh-live-tag { width: 100%; justify-content: center; }
+}
+
+/* ── Team mock (v0.2) ───────────────────────────────────── */
+.team-mock { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 8px; }
+.team-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: oklch(1 0 0 / 0.02);
+  font-size: 13px; color: var(--text-2);
+}
+.team-row .av {
+  width: 26px; height: 26px; border-radius: 8px;
+  display: grid; place-items: center;
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  background: var(--primary-soft); color: var(--primary);
+}
+.team-row .name { font-family: var(--mono); font-size: 12.5px; color: var(--text); }
+.team-row .on {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 8px oklch(0.78 0.16 145 / 0.6);
+}
+.team-row .role {
+  margin-left: auto;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 99px;
+  border: 1px solid var(--line); color: var(--text-3);
+}
+.team-row .role.admin {
+  border-color: oklch(0.74 0.155 240 / 0.35);
+  background: var(--primary-soft); color: var(--primary);
+}
+.team-audit-label {
+  margin-top: 10px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--text-4);
+}
+.audit-line {
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  font-family: var(--mono); font-size: 11.5px; color: var(--text-3);
+  padding: 2px 0;
+}
+.audit-line .t { color: var(--text-4); }
+.audit-line .who { color: var(--primary); }
+.audit-line .hl { color: var(--text); }

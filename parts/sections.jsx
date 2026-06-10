@@ -1,6 +1,7 @@
 // Page sections — production-ready with working links, mobile nav, scroll animations.
 
 const REPO_URL        = "https://github.com/Priyanshu-1622/skiff";
+const REPO_API        = "https://api.github.com/repos/Priyanshu-1622/skiff";
 const DOCS_URL        = REPO_URL + "/blob/main/README.md";
 const ISSUES_URL      = REPO_URL + "/issues";
 const DISCUSSIONS_URL = REPO_URL + "/discussions";
@@ -9,9 +10,113 @@ const DEPLOY_URL      = REPO_URL + "/blob/main/docs/DEPLOYMENT.md";
 const SECURITY_URL    = REPO_URL + "/blob/main/SECURITY.md";
 const CONTRIBUTING_URL= REPO_URL + "/blob/main/CONTRIBUTING.md";
 
+// ── Live GitHub stats ────────────────────────────────────────────
+// Fetched client-side, cached in localStorage for 10 minutes so we
+// stay well under GitHub's unauthenticated rate limit and the site
+// still shows numbers if the API is briefly unreachable.
+const GH_CACHE_KEY = "skiff.ghstats.v1";
+const GH_CACHE_TTL = 10 * 60 * 1000;
+
+const useGitHubStats = () => {
+  const [stats, setStats] = React.useState(() => {
+    try {
+      const raw = localStorage.getItem(GH_CACHE_KEY);
+      if (raw) {
+        const c = JSON.parse(raw);
+        if (typeof c.stars === "number" && typeof c.forks === "number") return c;
+      }
+    } catch { /* ignore */ }
+    return null;
+  });
+
+  React.useEffect(() => {
+    let cancelled = false;
+    const cached = (() => {
+      try { return JSON.parse(localStorage.getItem(GH_CACHE_KEY) || "null"); }
+      catch { return null; }
+    })();
+    if (cached && Date.now() - cached.t < GH_CACHE_TTL) return; // fresh enough
+
+    fetch(REPO_API)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("gh " + r.status))))
+      .then((d) => {
+        if (cancelled) return;
+        if (typeof d.stargazers_count !== "number") return; // rate-limited body
+        const next = { stars: d.stargazers_count, forks: d.forks_count ?? 0, t: Date.now() };
+        setStats(next);
+        try { localStorage.setItem(GH_CACHE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      })
+      .catch(() => { /* keep cached/null — UI degrades gracefully */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  return stats;
+};
+
+// Animate a number from 0 to `target` once `start` flips true.
+const useCountUp = (target, start, duration = 1100) => {
+  const [value, setValue] = React.useState(0);
+  React.useEffect(() => {
+    if (!start || !target) return;
+    let raf, t0;
+    const tick = (ts) => {
+      if (t0 === undefined) t0 = ts;
+      const p = Math.min((ts - t0) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3); // ease-out cubic
+      setValue(Math.round(eased * target));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, start, duration]);
+  return value;
+};
+
+// True once the element has scrolled into view (one-shot).
+const useInView = (ref) => {
+  const [inView, setInView] = React.useState(false);
+  React.useEffect(() => {
+    if (!ref.current) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setInView(true); obs.disconnect(); } },
+      { threshold: 0.3 }
+    );
+    obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, [ref]);
+  return inView;
+};
+
+const formatCount = (n) => (n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(n));
+
+// Big animated counters used in the Community section.
+const GitHubLiveStats = () => {
+  const stats = useGitHubStats();
+  const ref = React.useRef(null);
+  const inView = useInView(ref);
+  const stars = useCountUp(stats ? stats.stars : 0, inView && !!stats);
+  const forks = useCountUp(stats ? stats.forks : 0, inView && !!stats, 900);
+  return (
+    <div className="gh-live fade-in" ref={ref}>
+      <a className="gh-live-stat" href={REPO_URL + "/stargazers"} target="_blank" rel="noreferrer">
+        <Star style={{ width: 18, height: 18 }} />
+        <span className="n">{stats ? formatCount(stars) : "—"}</span>
+        <span className="l">GitHub stars</span>
+      </a>
+      <a className="gh-live-stat" href={REPO_URL + "/forks"} target="_blank" rel="noreferrer">
+        <ForkIcon style={{ width: 18, height: 18 }} />
+        <span className="n">{stats ? formatCount(forks) : "—"}</span>
+        <span className="l">Forks</span>
+      </a>
+      <span className="gh-live-tag"><span className="pulse" /> live from GitHub</span>
+    </div>
+  );
+};
+
 const Nav = () => {
   const [scrolled, setScrolled] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const ghStats = useGitHubStats();
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -35,7 +140,7 @@ const Nav = () => {
         <a href="#" className="brand">
           <span className="brand-mark"><SkiffLogo /></span>
           Skiff
-          <span style={{ fontSize: 11, fontFamily: "var(--mono)", color: "var(--text-4)", fontWeight: 400, marginLeft: 2 }}>v0.1</span>
+          <span style={{ fontSize: 11, fontFamily: "var(--mono)", color: "var(--text-4)", fontWeight: 400, marginLeft: 2 }}>v0.2</span>
         </a>
         <div className={"nav-links" + (menuOpen ? " open" : "")}>
           {navLinks.map(({ label, href, external }) => (
@@ -46,7 +151,8 @@ const Nav = () => {
         </div>
         <div className="nav-right">
           <a className="gh-pill" href={REPO_URL} target="_blank" rel="noreferrer">
-            <GitHub style={{ width: 14, height: 14 }} /> Star on GitHub
+            <GitHub style={{ width: 14, height: 14 }} />
+            {ghStats ? <>Star <span className="gh-pill-count"><Star style={{ width: 11, height: 11 }} /> {formatCount(ghStats.stars)}</span></> : "Star on GitHub"}
           </a>
           <a className="btn btn-primary" href="#quickstart">Get started <Arrow /></a>
           <button className="nav-hamburger" aria-label="Toggle menu" onClick={() => setMenuOpen((o) => !o)}>
@@ -79,8 +185,8 @@ const Hero = () => (
         Take control of your <span className="accent">SSH&nbsp;infrastructure.</span>
       </h1>
       <p className="lede fade-in" style={{ transitionDelay: "160ms" }}>
-        Skiff is a self-hosted SSH connection manager. Store hosts, organize folders, and launch
-        terminal sessions — all encrypted, all yours.
+        Skiff is a self-hosted SSH connection manager for individuals and teams. Store hosts,
+        organize folders, and launch terminal sessions — all encrypted, all on your server, never in a cloud.
       </p>
       <div className="hero-cta fade-in" style={{ transitionDelay: "240ms" }}>
         <a className="btn btn-primary" href="#quickstart">Get started <Arrow /></a>
@@ -90,6 +196,7 @@ const Hero = () => (
       </div>
       <div className="hero-trust fade-in" style={{ transitionDelay: "320ms" }}>
         <span>Free forever</span><span className="sep" />
+        <span>Team-ready</span><span className="sep" />
         <span>No telemetry</span><span className="sep" />
         <span>Docker-ready in 60 seconds</span>
       </div>
@@ -190,6 +297,20 @@ const Showcase = () => (
           </div>
         </div>
       </div>
+      <div className="show reverse fade-in">
+        <div>
+          <span className="eyebrow"><span className="dot" />New in v0.2 — Team mode</span>
+          <h2>One vault. Your whole team. Still no cloud.</h2>
+          <p>Run a single Skiff instance for the team. Everyone signs in with their own username and
+            password, shares one encrypted vault of hosts, and every login and connection lands in an
+            audit log. Forgot a password? An admin resets it — no data lost, no cloud recovery backdoor.
+            Already using Skiff solo? Upgrade in place or move to a team server with backup &amp; restore.</p>
+          <div className="stats">
+            <span>Per-user logins</span><span>Audit log</span><span>Admin password reset</span>
+          </div>
+        </div>
+        <TeamMock />
+      </div>
     </div>
   </section>
 );
@@ -199,7 +320,9 @@ const Comparison = () => {
     ["Self-hosted",         ["yes"],["no"],              ["no"],             ["no"]],
     ["Open source",         ["yes"],["no"],              ["no"],             ["no"]],
     ["Free forever",        ["yes"],["partial","Freemium"],["partial","Paid"],["partial","Paid"]],
+    ["Team features",       ["yes"],["partial","Paid cloud"],["partial","Paid"],["no"]],
     ["E2E encryption",      ["yes"],["yes"],             ["yes"],            ["yes"]],
+    ["Audit log",           ["yes"],["partial","Paid"],  ["no"],             ["no"]],
     ["In-browser terminal", ["yes"],["no"],              ["no"],             ["no"]],
     ["No telemetry",        ["yes"],["no"],              ["no"],             ["no"]],
     ["Web-based UI",        ["yes"],["partial","Desktop"],["partial","Desktop"],["partial","Desktop"]],
@@ -356,9 +479,10 @@ const Community = () => (
       <div className="gh-icon"><GitHub style={{ width:28,height:28 }} /></div>
       <span className="eyebrow"><span className="dot" />Open source</span>
       <h2 style={{ marginTop:14 }}>Built in the open. Built by developers, for developers.</h2>
+      <GitHubLiveStats />
       <div className="stats-row">
         <span className="badge">AGPL-3.0 licensed</span>
-        <span className="badge">v0.1.0</span>
+        <span className="badge">v0.2.0 — Team mode</span>
         <span className="badge">Public roadmap</span>
         <span className="badge">Self-hostable</span>
       </div>
@@ -382,13 +506,15 @@ const FAQ = () => {
     ["How is this different from SSH-ing directly?",
      "Skiff doesn't replace SSH — it's a manager on top of it. Think of it like 1Password for your SSH connections, plus a built-in xterm.js terminal. Your credentials are encrypted; the connection is a real SSH session."],
     ["Where are my credentials stored?",
-     "On your server, encrypted with AES-256-GCM. The key is derived from your master password (never stored anywhere). Nobody can decrypt your credentials without your password — not even you, if you forget it. Download a backup regularly."],
+     "On your server, encrypted with AES-256-GCM. The key is derived from your master password (never stored anywhere). Nobody can decrypt your credentials without your password — not even you, if you forget it. Use Settings → Backup to download an encrypted export; a fresh instance can restore it from the setup screen."],
     ["Can I host this on a Raspberry Pi?",
      "Yes. SQLite + a small Node.js process runs comfortably on a Pi 4 with ~100 MB of memory. SSH terminal sessions are the heaviest part but are lightweight per-connection."],
     ["What happens if I forget my master password?",
-     "Your credentials are permanently lost — there is no recovery mechanism. That's the security trade-off of not storing the key anywhere. Use Settings → Backup regularly to download an encrypted vault export."],
+     "In personal mode your credentials are permanently lost — there is no recovery mechanism, by design. In team mode you're covered: any admin can issue you a new temporary password and nothing is lost, because credentials are encrypted with the shared team key. Keep at least two admins."],
     ["Can multiple users share a Skiff instance?",
-     "Not in v0.1. Multi-user support with role-based access control (RBAC) is on the roadmap. For now it's a single-user vault by design."],
+     "Yes — that's team mode, new in v0.2. Choose Team at setup (or upgrade an existing personal vault in place): every member gets their own login, shares one encrypted vault of hosts, and admins manage members and see an audit log of who connected where. It's a shared vault — per-host role-based access control is deliberately out of scope."],
+    ["How does team mode work without a cloud?",
+     "One Skiff instance runs on a server your team can reach — a VPS, an office box, a homelab. Everyone's browser connects to it over HTTPS with their own account. The data lives in that one place, so there's nothing to sync and no third party to trust. SSH connections are made from the Skiff server to your hosts."],
     ["Does Skiff support SSH key authentication?",
      "Yes. When adding a host, select \"Private Key\" and paste your key. It's encrypted at rest with AES-256-GCM and never transmitted to any external service."],
     ["Can I import my hosts from Termius or Royal TSX?",

@@ -171,8 +171,28 @@ const TechXterm = (p) => (
   </svg>
 );
 
+const ForkIcon = (p) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}>
+    <circle cx="6" cy="5" r="2.4" />
+    <circle cx="18" cy="5" r="2.4" />
+    <circle cx="12" cy="19" r="2.4" />
+    <path d="M6 7.4v2.1a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V7.4" />
+    <path d="M12 12.5v4" />
+  </svg>
+);
+
+const Users = (p) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}>
+    <circle cx="9" cy="8" r="3.2" />
+    <path d="M3.5 19.5a5.5 5.5 0 0 1 11 0" />
+    <path d="M15.5 5.4a3.2 3.2 0 0 1 0 5.6" />
+    <path d="M16.8 14.2a5.5 5.5 0 0 1 3.7 5.3" />
+  </svg>
+);
+
 Object.assign(window, {
   SkiffLogo, Arrow, GitHub, Star, Lock, Terminal, Rocket, Check, X, Search,
   Folder, Chevron, Copy, Book, Chat, Container, Settings, Globe,
-  TechReact, TechTS, TechNode, TechSqlite, TechDocker, TechFastify, TechXterm
+  TechReact, TechTS, TechNode, TechSqlite, TechDocker, TechFastify, TechXterm,
+  ForkIcon, Users
 });

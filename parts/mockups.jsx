@@ -129,4 +129,33 @@ const VaultMock = () => (
   </div>
 );
 
-Object.assign(window, { HeroAppMock, TreeMock, TerminalMock, VaultMock });
+const TeamMock = () => (
+  <div className="frame">
+    <div className="browser-bar" style={{ background: "transparent" }}>
+      <div className="tl"><span className="r"></span><span className="y"></span><span className="g"></span></div>
+      <div style={{ fontFamily: "var(--mono)", fontSize: 12, color: "var(--text-3)" }}>Admin — members &amp; audit</div>
+    </div>
+    <div className="team-mock">
+      {[
+        ["PR", "priyanshu", "Admin",  true],
+        ["AN", "ananya",    "Admin",  true],
+        ["RA", "rahul",     "Member", true],
+        ["DE", "devops-ci", "Member", false],
+      ].map(([av, name, role, on]) => (
+        <div key={name} className="team-row">
+          <span className="av">{av}</span>
+          <span className="name">@{name}</span>
+          {on && <span className="on" title="active" />}
+          <span className={"role" + (role === "Admin" ? " admin" : "")}>{role}</span>
+        </div>
+      ))}
+      <div className="team-audit-label">Audit log</div>
+      <div className="audit-line"><span className="t">14:32</span><span className="who">@rahul</span> connected to <span className="hl">prod-web-01</span></div>
+      <div className="audit-line"><span className="t">14:28</span><span className="who">@ananya</span> reset password for <span className="hl">@devops-ci</span></div>
+      <div className="audit-line"><span className="t">14:21</span><span className="who">@priyanshu</span> created host <span className="hl">db-replica-02</span></div>
+      <div className="audit-line"><span className="t">14:05</span><span className="who">@rahul</span> logged in</div>
+    </div>
+  </div>
+);
+
+Object.assign(window, { HeroAppMock, TreeMock, TerminalMock, VaultMock, TeamMock });
